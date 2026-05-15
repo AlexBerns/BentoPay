@@ -1,0 +1,52 @@
+.page {
+  padding: 16px;
+  background: #FFFFFF;
+  min-height: 100vh;
+}
+
+.heading {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.empty {
+  margin-top: 64px;
+  text-align: center;
+  color: #999999;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #EEEEEE;
+}
+
+.footer {
+  margin-top: 24px;
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 16px;
+  font-weight: 700;
+  padding: 12px 0;
+}
+
+.pay {
+  margin-top: 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #FF0033;
+  color: #FFFFFF;
+  text-align: center;
+  font-weight: 700;
+}

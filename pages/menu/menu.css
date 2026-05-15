@@ -1,0 +1,48 @@
+.page {
+  padding: 16px;
+  background: #FFFFFF;
+  min-height: 100vh;
+}
+
+.heading {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #F5F5F5;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.price {
+  margin-top: 4px;
+  font-size: 13px;
+  color: #555555;
+}
+
+.add {
+  font-size: 22px;
+  color: #FF0033;
+  font-weight: 700;
+}

@@ -1,0 +1,36 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  min-height: 100vh;
+  background: #FFFFFF;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 64px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #FF0033;
+}
+
+.subtitle {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #555555;
+}
+
+.cta {
+  margin-top: 48px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #FF0033;
+  color: #FFFFFF;
+  text-align: center;
+  font-weight: 600;
+}

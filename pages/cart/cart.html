@@ -1,0 +1,24 @@
+<view class="page">
+  <text class="heading">Your Cart</text>
+
+  <view a:if="{{items.length === 0}}" class="empty">
+    <text>Your cart is empty.</text>
+  </view>
+
+  <view a:else class="list">
+    <view class="row" a:for="{{items}}">
+      <text class="name">{{item.name}}</text>
+      <text class="price">¥{{item.price}}</text>
+    </view>
+  </view>
+
+  <view a:if="{{items.length > 0}}" class="footer">
+    <view class="total">
+      <text>Total</text>
+      <text>¥{{total}}</text>
+    </view>
+    <view class="pay" onTap="checkout">
+      <text>Pay with PayPay</text>
+    </view>
+  </view>
+</view>

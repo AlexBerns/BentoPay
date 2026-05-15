@@ -1,0 +1,12 @@
+<view class="page">
+  <text class="heading">Menu</text>
+  <view class="list">
+    <view class="item" a:for="{{items}}" onTap="addToCart" data-id="{{item.id}}">
+      <view class="info">
+        <text class="name">{{item.name}}</text>
+        <text class="price">¥{{item.price}}</text>
+      </view>
+      <text class="add">+</text>
+    </view>
+  </view>
+</view>
