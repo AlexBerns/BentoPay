@@ -1,12 +1,16 @@
 <view class="page">
-  <text class="heading">Menu</text>
+  <text class="heading">Flavors</text>
   <view class="list">
     <view class="item" a:for="{{items}}" onTap="addToCart" data-id="{{item.id}}">
+      <text class="emoji">{{item.emoji}}</text>
       <view class="info">
         <text class="name">{{item.name}}</text>
-        <text class="price">¥{{item.price}}</text>
+        <text class="desc">{{item.desc}}</text>
       </view>
-      <text class="add">+</text>
+      <view class="right">
+        <text class="price">¥{{item.price}}</text>
+        <text class="add">+</text>
+      </view>
     </view>
   </view>
 </view>
