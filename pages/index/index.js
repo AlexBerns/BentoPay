@@ -1,9 +1,9 @@
 Page({
   data: {
     featured: [
-      { id: "matcha",     name: "Matcha",          price: 480, emoji: "🍵" },
-      { id: "strawberry", name: "Strawberry",      price: 460, emoji: "🍓" },
-      { id: "vanilla",    name: "Vanilla Classic", price: 420, emoji: "🍦" },
+      { id: "salmon",  name: "Salmon Teriyaki", price: 980,  emoji: "🐟" },
+      { id: "karaage", name: "Chicken Karaage", price: 880,  emoji: "🍗" },
+      { id: "unagi",   name: "Unagi",           price: 1480, emoji: "🍣" },
     ],
   },
   openMenu() {

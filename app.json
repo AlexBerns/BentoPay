@@ -7,7 +7,7 @@
   "window": {
     "navigationBarBackgroundColor": "#FF0033",
     "navigationBarTextStyle": "white",
-    "navigationBarTitleText": "BentoPay Ice Cream",
+    "navigationBarTitleText": "BentoPay",
     "navigationStyle": "default",
     "backgroundColor": "#FFFFFF",
     "enablePullDownRefresh": false
@@ -18,7 +18,7 @@
     "selectedColor": "#FF0033",
     "list": [
       { "pagePath": "pages/index/index", "text": "Home" },
-      { "pagePath": "pages/menu/menu", "text": "Flavors" },
+      { "pagePath": "pages/menu/menu", "text": "Menu" },
       { "pagePath": "pages/cart/cart", "text": "Cart" }
     ]
   },

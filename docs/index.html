@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BentoPay — Interactive Preview</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #F3F4F6;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 64px;
+  }
+  .note {
+    max-width: 540px;
+    margin-bottom: 24px;
+    padding: 12px 16px;
+    background: #FFF;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    color: #555;
+    font-size: 13px;
+    text-align: center;
+  }
+  .note b { color: #FF0033; }
+
+  .phone {
+    width: 380px;
+    height: 780px;
+    background: #FFF;
+    border-radius: 44px;
+    border: 10px solid #111;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.18);
+  }
+  .navbar {
+    height: 48px;
+    background: #FF0033;
+    color: #FFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+  }
+  .screen {
+    height: calc(100% - 48px - 60px);
+    overflow-y: auto;
+  }
+  .screen > .page { display: none; }
+  .screen > .page.active { display: flex; flex-direction: column; min-height: 100%; }
+
+  .tabbar {
+    height: 60px;
+    background: #FFF;
+    border-top: 1px solid #EEE;
+    display: flex;
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #888;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+  }
+  .tab.active { color: #FF0033; }
+  .tab .tab-icon { font-size: 18px; line-height: 1; margin-bottom: 4px; }
+  .tab .badge-count {
+    position: absolute;
+    top: 6px;
+    right: 28%;
+    background: #FF0033;
+    color: #FFF;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 999px;
+    min-width: 18px;
+    text-align: center;
+  }
+  .tab .badge-count.hidden { display: none; }
+
+  /* ---------- Index ---------- */
+  .idx-page { padding: 20px; background: linear-gradient(180deg, #FFF6E0 0%, #FFFFFF 60%); }
+  .idx-hero { display:flex; flex-direction:column; align-items:center; padding: 24px 16px 16px; }
+  .idx-badge { font-size:10px; letter-spacing:1px; color:#FF0033; background:#FFEEDB; padding:4px 10px; border-radius:999px; text-transform:uppercase; }
+  .idx-title { margin-top:12px; font-size:28px; font-weight:800; color:#1A1A1A; }
+  .idx-subtitle { margin-top:6px; font-size:14px; color:#666; }
+  .idx-cone { margin-top:16px; font-size:60px; }
+  .idx-section-title { font-size:15px; font-weight:700; color:#1A1A1A; margin: 20px 0 12px; }
+  .idx-cards { display:flex; gap:12px; overflow-x:auto; padding-bottom: 4px; }
+  .idx-card { flex:0 0 120px; display:flex; flex-direction:column; align-items:center; padding:14px 10px; background:#FFF; border-radius:14px; box-shadow: 0 2px 8px rgba(255,0,51,0.08); cursor: pointer; }
+  .idx-emoji { font-size:34px; }
+  .idx-name { margin-top:8px; font-size:13px; font-weight:600; color:#1A1A1A; text-align:center; }
+  .idx-price { margin-top:4px; font-size:12px; color:#FF0033; font-weight:700; }
+  .idx-cta { margin-top:28px; padding:14px; border-radius:12px; background:#FF0033; color:#FFF; text-align:center; font-weight:700; font-size:15px; box-shadow:0 4px 12px rgba(255,0,51,0.25); cursor: pointer; }
+
+  /* ---------- Menu ---------- */
+  .menu-page { padding:16px; background:#FFF; }
+  .menu-heading { font-size:22px; font-weight:800; margin-bottom:16px; color:#1A1A1A; }
+  .menu-list { display:flex; flex-direction:column; gap:10px; }
+  .menu-item { display:flex; align-items:center; padding:12px; border-radius:14px; background:#FFF7F0; cursor: pointer; transition: transform 0.08s; }
+  .menu-item:active { transform: scale(0.98); }
+  .menu-emoji { font-size:30px; margin-right:12px; }
+  .menu-info { flex:1; display:flex; flex-direction:column; }
+  .menu-name { font-size:14px; font-weight:700; color:#1A1A1A; }
+  .menu-desc { margin-top:2px; font-size:11px; color:#777; }
+  .menu-right { display:flex; flex-direction:column; align-items:flex-end; }
+  .menu-price { font-size:13px; font-weight:700; color:#FF0033; }
+  .menu-add { margin-top:4px; font-size:20px; color:#FF0033; font-weight:700; }
+
+  /* ---------- Cart ---------- */
+  .cart-page { padding:16px; background:#FFF; }
+  .cart-heading { font-size:22px; font-weight:800; margin-bottom:16px; color:#1A1A1A; }
+  .cart-empty { margin-top:60px; text-align:center; color:#999; font-size:14px; }
+  .cart-list { display:flex; flex-direction:column; gap:6px; }
+  .cart-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #EEE; font-size:14px; }
+  .cart-row-name { color:#1A1A1A; }
+  .cart-row-price { color:#FF0033; font-weight:600; }
+  .cart-row-remove { color:#999; font-size:18px; cursor: pointer; padding: 0 8px; }
+  .cart-footer { margin-top:20px; }
+  .cart-total { display:flex; justify-content:space-between; font-size:16px; font-weight:700; padding:12px 0; }
+  .cart-pay { margin-top:14px; padding:14px; border-radius:12px; background:#FF0033; color:#FFF; text-align:center; font-weight:700; font-size:15px; cursor: pointer; }
+  .cart-pay.disabled { background:#CCC; cursor: not-allowed; }
+
+  /* ---------- Toast / Modal overlay ---------- */
+  .toast {
+    position: absolute;
+    bottom: 80px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,0.85); color: #FFF;
+    padding: 10px 16px; border-radius: 10px;
+    font-size: 13px; font-weight: 600;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.25s;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; }
+
+  .modal {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .modal.show { display: flex; }
+  .modal-card {
+    width: 100%;
+    background: #FFF;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+  }
+  .modal-emoji { font-size: 48px; }
+  .modal-title { margin-top: 12px; font-size: 18px; font-weight: 800; color: #1A1A1A; }
+  .modal-desc { margin-top: 8px; font-size: 13px; color: #666; }
+  .modal-btn { margin-top: 18px; padding: 12px; border-radius: 10px; background: #FF0033; color: #FFF; font-weight: 700; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="note">
+  <b>Interactive preview</b> of BentoPay — tabs, add-to-cart, and a fake checkout
+  all work. Real PayPay runtime and payment flow happen in the DevTool simulator.
+</div>
+
+<div class="phone">
+  <div class="navbar" id="navbar">BentoPay</div>
+
+  <div class="screen">
+
+    <!-- Home -->
+    <div class="page active" data-page="home">
+      <div class="idx-page">
+        <div class="idx-hero">
+          <span class="idx-badge">PayPay Mini App</span>
+          <div class="idx-title">BentoPay</div>
+          <div class="idx-subtitle">Fresh bento, paid in seconds.</div>
+          <div class="idx-cone">🍱</div>
+        </div>
+        <div class="idx-section-title">Today's Bentos</div>
+        <div class="idx-cards" id="featured-cards"></div>
+        <div class="idx-cta" data-goto="menu">See Full Menu</div>
+      </div>
+    </div>
+
+    <!-- Menu -->
+    <div class="page" data-page="menu">
+      <div class="menu-page">
+        <div class="menu-heading">Menu</div>
+        <div class="menu-list" id="menu-list"></div>
+      </div>
+    </div>
+
+    <!-- Cart -->
+    <div class="page" data-page="cart">
+      <div class="cart-page">
+        <div class="cart-heading">Your Cart</div>
+        <div id="cart-empty" class="cart-empty">Your cart is empty.</div>
+        <div id="cart-content" style="display:none;">
+          <div class="cart-list" id="cart-list"></div>
+          <div class="cart-footer">
+            <div class="cart-total">
+              <span>Total</span>
+              <span id="cart-total-value">¥0</span>
+            </div>
+            <div class="cart-pay" id="cart-pay-btn">Pay with PayPay</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="tabbar">
+    <div class="tab active" data-tab="home"><span class="tab-icon">🏠</span>Home</div>
+    <div class="tab" data-tab="menu"><span class="tab-icon">📋</span>Menu</div>
+    <div class="tab" data-tab="cart">
+      <span class="tab-icon">🛒</span>Cart
+      <span class="badge-count hidden" id="cart-badge">0</span>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="modal" id="modal">
+    <div class="modal-card">
+      <div class="modal-emoji">✅</div>
+      <div class="modal-title">Payment Successful</div>
+      <div class="modal-desc" id="modal-desc">Thanks for ordering with BentoPay!</div>
+      <div class="modal-btn" id="modal-close">Done</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const ITEMS = [
+    { id: "salmon",   emoji: "🐟", name: "Salmon Teriyaki", desc: "Glazed Atlantic salmon over rice",   price: 980  },
+    { id: "karaage",  emoji: "🍗", name: "Chicken Karaage", desc: "Japanese fried chicken, tartare",    price: 880  },
+    { id: "tonkatsu", emoji: "🍖", name: "Tonkatsu",        desc: "Panko-crusted pork cutlet",          price: 1080 },
+    { id: "sukiyaki", emoji: "🥩", name: "Beef Sukiyaki",   desc: "Thin-sliced wagyu in sweet soy",     price: 1280 },
+    { id: "unagi",    emoji: "🍣", name: "Unagi",           desc: "Grilled eel, kabayaki sauce",        price: 1480 },
+    { id: "tempura",  emoji: "🥬", name: "Veggie Tempura",  desc: "Seasonal vegetables, lightly fried", price: 880  },
+  ];
+  const FEATURED_IDS = ["salmon", "karaage", "unagi"];
+
+  const PAGE_TITLES = { home: "BentoPay", menu: "Menu", cart: "Cart" };
+
+  let cart = [];
+
+  // ---------- Rendering ----------
+  function renderFeatured() {
+    const el = document.getElementById("featured-cards");
+    el.innerHTML = FEATURED_IDS.map(id => {
+      const item = ITEMS.find(i => i.id === id);
+      return `
+        <div class="idx-card" data-add="${item.id}">
+          <span class="idx-emoji">${item.emoji}</span>
+          <span class="idx-name">${item.name}</span>
+          <span class="idx-price">¥${item.price}</span>
+        </div>`;
+    }).join("");
+  }
+
+  function renderMenu() {
+    const el = document.getElementById("menu-list");
+    el.innerHTML = ITEMS.map(item => `
+      <div class="menu-item" data-add="${item.id}">
+        <span class="menu-emoji">${item.emoji}</span>
+        <div class="menu-info">
+          <span class="menu-name">${item.name}</span>
+          <span class="menu-desc">${item.desc}</span>
+        </div>
+        <div class="menu-right">
+          <span class="menu-price">¥${item.price}</span>
+          <span class="menu-add">+</span>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  function renderCart() {
+    const empty = document.getElementById("cart-empty");
+    const content = document.getElementById("cart-content");
+    const list = document.getElementById("cart-list");
+    const total = document.getElementById("cart-total-value");
+
+    if (cart.length === 0) {
+      empty.style.display = "block";
+      content.style.display = "none";
+    } else {
+      empty.style.display = "none";
+      content.style.display = "block";
+      list.innerHTML = cart.map((item, idx) => `
+        <div class="cart-row">
+          <span class="cart-row-name">${item.emoji} ${item.name}</span>
+          <span>
+            <span class="cart-row-price">¥${item.price}</span>
+            <span class="cart-row-remove" data-remove="${idx}">×</span>
+          </span>
+        </div>
+      `).join("");
+      const sum = cart.reduce((s, i) => s + i.price, 0);
+      total.textContent = `¥${sum.toLocaleString("ja-JP")}`;
+    }
+
+    const badge = document.getElementById("cart-badge");
+    if (cart.length === 0) badge.classList.add("hidden");
+    else { badge.classList.remove("hidden"); badge.textContent = cart.length; }
+  }
+
+  // ---------- Tab switching ----------
+  function showPage(name) {
+    document.querySelectorAll(".page").forEach(p => p.classList.toggle("active", p.dataset.page === name));
+    document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === name));
+    document.getElementById("navbar").textContent = PAGE_TITLES[name] || "BentoPay";
+    document.querySelector(".screen").scrollTop = 0;
+  }
+
+  // ---------- Toast ----------
+  let toastTimer;
+  function showToast(msg) {
+    const el = document.getElementById("toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("show"), 1500);
+  }
+
+  // ---------- Event delegation ----------
+  document.addEventListener("click", (e) => {
+    const tab = e.target.closest(".tab");
+    if (tab) { showPage(tab.dataset.tab); return; }
+
+    const goto = e.target.closest("[data-goto]");
+    if (goto) { showPage(goto.dataset.goto); return; }
+
+    const add = e.target.closest("[data-add]");
+    if (add) {
+      const item = ITEMS.find(i => i.id === add.dataset.add);
+      cart.push(item);
+      renderCart();
+      showToast(`${item.name} added`);
+      return;
+    }
+
+    const remove = e.target.closest("[data-remove]");
+    if (remove) {
+      cart.splice(Number(remove.dataset.remove), 1);
+      renderCart();
+      return;
+    }
+
+    if (e.target.id === "cart-pay-btn" && cart.length > 0) {
+      const sum = cart.reduce((s, i) => s + i.price, 0);
+      document.getElementById("modal-desc").textContent =
+        `¥${sum.toLocaleString("ja-JP")} charged. Order confirmed!`;
+      document.getElementById("modal").classList.add("show");
+      cart = [];
+      renderCart();
+      return;
+    }
+
+    if (e.target.id === "modal-close") {
+      document.getElementById("modal").classList.remove("show");
+      showPage("home");
+      return;
+    }
+  });
+
+  renderFeatured();
+  renderMenu();
+  renderCart();
+</script>
+
+</body>
+</html>
