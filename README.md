@@ -44,3 +44,35 @@ merchants.
    `localhost`.
 6. Open the project in PayPay DevTool (`paypay-devtool.vsix`) and approve the
    payment in the sandbox PayPay app on your phone.
+
+## What works without the PayPay DevTool
+
+The DevTool VS Code extension is the only official way to upload code as a
+real Mini App and have it appear as a tile inside the PayPay sandbox app.
+Without it, the following still works:
+
+| Task | Possible without DevTool? |
+|---|---|
+| Write the mini app code (`app.json`, pages, utils) | ✅ Yes — already in this repo |
+| Run a fake browser preview (`docs/index.html`) | ✅ Yes — handy for design, not real |
+| Preview it as a real Mini App in a simulator | ❌ No — simulator lives in the DevTool |
+| Upload it to PayPay so it becomes a tile in the sandbox app | ❌ No — upload endpoint is proprietary |
+| Mint payments via the OPA API | ✅ Yes — see `server/` |
+| Have the phone scan a kiosk QR and approve in PayPay sandbox | ✅ Yes — see `/kiosk` route |
+
+## Upcoming tasks
+
+- [ ] **Request the PayPay DevTool extension** (`paypay-devtool.vsix`) from
+      PayPay developer support. Required to preview the mini app in a real
+      simulator and to upload the bundle to PayPay's sandbox.
+- [ ] **Request a Mini App ID** for sandbox in the PayPay for Developers
+      portal (separate from the OPA API key). The DevTool uploads bundles
+      against a Mini App ID.
+- [ ] **Read PayPay's official Mini App documentation** end-to-end before
+      writing any more mini app screens — in particular the design
+      guidelines, supported `my.*` APIs, navigation patterns, and review
+      criteria. Building against the framework's actual rules now saves a
+      rewrite later.
+- [ ] **Build the real Mini App** once the DevTool and Mini App ID are in
+      hand: port the kiosk-scan flow into a proper `my.scanCode` page,
+      wire up the Locations tab, and submit to sandbox review.
