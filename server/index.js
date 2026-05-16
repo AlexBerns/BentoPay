@@ -15,8 +15,16 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/health", (_req, res) => {
+  res.json({
+    ok: true,
+    sandbox: process.env.PAYPAY_PRODUCTION_MODE !== "true",
+    merchantId: process.env.PAYPAY_MERCHANT_ID ? "set" : "missing",
+  });
+});
+
 app.post("/api/payment/create", async (req, res) => {
-  const { items } = req.body;
+  const { items, pickupLocation } = req.body;
   if (!Array.isArray(items) || items.length === 0) {
     return res.status(400).json({ error: "items required" });
   }
@@ -27,10 +35,12 @@ app.post("/api/payment/create", async (req, res) => {
     merchantPaymentId,
     amount: { amount, currency: "JPY" },
     codeType: "ORDER_QR",
-    orderDescription: "BentoPay Ice Cream order",
+    orderDescription: pickupLocation
+      ? `BentoPay order · pickup at ${pickupLocation}`
+      : "BentoPay order",
     orderItems: items.map(i => ({
       name: i.name,
-      category: "ice-cream",
+      category: "bento",
       quantity: 1,
       productId: i.id,
       unitPrice: { amount: Number(i.price), currency: "JPY" },
@@ -40,19 +50,27 @@ app.post("/api/payment/create", async (req, res) => {
     redirectType: "WEB_LINK",
   };
 
-  const result = await PAYPAY.QRCodeCreate(payload);
-  if (result.STATUS !== 201) {
-    return res.status(502).json({ error: "paypay_create_failed", detail: result.BODY });
+  try {
+    const result = await PAYPAY.QRCodeCreate(payload);
+    if (result.STATUS !== 201) {
+      return res.status(502).json({ error: "paypay_create_failed", detail: result.BODY });
+    }
+    res.json({ merchantPaymentId, ...result.BODY.data });
+  } catch (err) {
+    res.status(500).json({ error: "paypay_create_threw", message: err.message });
   }
-  res.json({ merchantPaymentId, ...result.BODY.data });
 });
 
 app.get("/api/payment/:merchantPaymentId", async (req, res) => {
-  const result = await PAYPAY.GetCodePaymentDetails([req.params.merchantPaymentId]);
-  if (result.STATUS !== 200) {
-    return res.status(502).json({ error: "paypay_lookup_failed", detail: result.BODY });
+  try {
+    const result = await PAYPAY.GetCodePaymentDetails([req.params.merchantPaymentId]);
+    if (result.STATUS !== 200) {
+      return res.status(502).json({ error: "paypay_lookup_failed", detail: result.BODY });
+    }
+    res.json(result.BODY.data);
+  } catch (err) {
+    res.status(500).json({ error: "paypay_lookup_threw", message: err.message });
   }
-  res.json(result.BODY.data);
 });
 
 const port = Number(process.env.PORT) || 3000;
