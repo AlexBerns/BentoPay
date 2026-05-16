@@ -126,8 +126,18 @@
     width: 100%;
     display: flex;
     justify-content: center;
+    min-height: 224px;
   }
+  .qr-wrap canvas,
+  .qr-wrap img,
   .qr-wrap svg { display: block; width: 200px; height: 200px; }
+  .qr-error {
+    color: #FF0033;
+    font-size: 11px;
+    text-align: center;
+    padding: 30px 10px;
+    line-height: 1.4;
+  }
   .qr-caption {
     margin-top: 10px;
     font-size: 12px;
@@ -179,7 +189,10 @@
   Each QR encodes <code id="example-url">/buy?item=&lt;id&gt;</code> on this host. Scanning opens that URL, the backend mints a PayPay sandbox payment, and your phone is redirected to PayPay to approve.
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"
+        onerror="window.__qrLibFailed = true;"></script>
+<script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"
+        onerror="window.__qrLibFailed2 = true;"></script>
 <script>
   const ITEMS = [
     { id: "salmon",   emoji: "🐟", name: "Salmon Teriyaki", desc: "Glazed Atlantic salmon over rice",   price: 980  },
@@ -196,7 +209,26 @@
 
   const grid = document.getElementById("grid");
 
-  ITEMS.forEach((item, idx) => {
+  function renderQR(wrap, url) {
+    if (typeof QRCode === "undefined") {
+      wrap.innerHTML = `<div class="qr-error">QR library failed to load.<br>Check the browser console.<br><br>URL: ${url}</div>`;
+      console.error("QRCode is undefined — script tag(s) did not load.", {
+        jsdelivrFailed: window.__qrLibFailed,
+        unpkgFailed: window.__qrLibFailed2,
+      });
+      return;
+    }
+    const canvas = document.createElement("canvas");
+    wrap.appendChild(canvas);
+    QRCode.toCanvas(canvas, url, { width: 200, margin: 1, color: { dark: "#1A1A1A", light: "#FFFFFF" } }, (err) => {
+      if (err) {
+        console.error("QR generation failed", url, err);
+        wrap.innerHTML = `<div class="qr-error">QR error: ${err.message}</div>`;
+      }
+    });
+  }
+
+  ITEMS.forEach((item) => {
     const url = `${origin}/buy?item=${item.id}`;
     const card = document.createElement("div");
     card.className = "card";
@@ -209,10 +241,7 @@
       <div class="qr-caption"><span class="arrow">▲</span> Scan to order</div>
     `;
     grid.appendChild(card);
-
-    QRCode.toString(url, { type: "svg", width: 200, margin: 1, color: { dark: "#1A1A1A", light: "#FFFFFF" } }, (err, svg) => {
-      if (!err) document.getElementById(`qr-${item.id}`).innerHTML = svg;
-    });
+    renderQR(document.getElementById(`qr-${item.id}`), url);
   });
 </script>
 
