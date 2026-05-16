@@ -127,29 +127,91 @@
   .loc-heading { font-size:22px; font-weight:800; margin-bottom:6px; color:#1A1A1A; }
   .loc-sub { font-size:12px; color:#777; margin-bottom:14px; }
   .loc-map {
-    height: 120px;
+    height: 240px;
     border-radius: 14px;
-    background:
-      radial-gradient(circle at 22% 38%, #FF0033 0 6px, transparent 7px),
-      radial-gradient(circle at 58% 28%, #FF0033 0 6px, transparent 7px),
-      radial-gradient(circle at 78% 62%, #FF0033 0 6px, transparent 7px),
-      radial-gradient(circle at 38% 72%, #FF0033 0 6px, transparent 7px),
-      radial-gradient(circle at 68% 80%, #FF0033 0 6px, transparent 7px),
-      linear-gradient(135deg, #EAF3FF 0%, #F6ECFF 100%);
     position: relative;
-    margin-bottom: 14px;
+    margin-bottom: 18px;
     border: 1px solid #E5E7EB;
+    background: #F4F1EA;
   }
-  .loc-map::after {
-    content: "Tokyo · 5 stores";
+  .loc-map-svg { display:block; width:100%; height:100%; border-radius:14px; user-select:none; }
+  .loc-map-label {
     position: absolute;
     bottom: 8px; right: 10px;
-    background: rgba(255,255,255,0.85);
+    background: rgba(255,255,255,0.9);
     color:#555;
     font-size:10px;
     font-weight:600;
     padding: 3px 8px;
     border-radius: 999px;
+    pointer-events: none;
+  }
+  .loc-pin-btn {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    width: 22px;
+    height: 28px;
+    transition: transform 0.15s ease;
+  }
+  .loc-pin-btn:hover { transform: translate(-50%, calc(-100% - 3px)); }
+  .loc-pin-btn:active { transform: translate(-50%, calc(-100% - 1px)); }
+  .loc-pin-btn svg { display:block; width:100%; height:100%; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35)); transition: filter 0.15s; }
+  .loc-pin-btn.selected svg { filter: drop-shadow(0 3px 6px rgba(255,0,51,0.55)); }
+  .loc-pin-btn.selected::after {
+    content: "";
+    position: absolute;
+    bottom: -6px; left: 50%;
+    width: 18px; height: 6px;
+    background: rgba(255,0,51,0.35);
+    border-radius: 50%;
+    transform: translateX(-50%);
+    animation: pin-pulse 1.4s ease-out infinite;
+    pointer-events: none;
+  }
+  @keyframes pin-pulse {
+    0%   { width: 14px; opacity: 0.55; }
+    100% { width: 40px; opacity: 0; }
+  }
+  .loc-callout {
+    position: absolute;
+    transform: translate(-50%, calc(-100% - 30px));
+    background: #FFF;
+    border-radius: 10px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+    padding: 8px 10px;
+    min-width: 150px;
+    max-width: 200px;
+    z-index: 10;
+    pointer-events: none;
+    text-align: left;
+  }
+  .loc-callout::after {
+    content: "";
+    position: absolute;
+    bottom: -6px; left: 50%;
+    border-style: solid;
+    border-width: 6px 6px 0 6px;
+    border-color: #FFF transparent transparent transparent;
+    transform: translateX(-50%);
+  }
+  .loc-callout.below { transform: translate(-50%, 14px); }
+  .loc-callout.below::after {
+    top: -6px; bottom: auto;
+    border-width: 0 6px 6px 6px;
+    border-color: transparent transparent #FFF transparent;
+  }
+  .loc-callout[hidden] { display: none; }
+  .loc-callout-name { font-weight:700; color:#1A1A1A; font-size:12px; }
+  .loc-callout-addr { color:#666; font-size:10px; margin-top:2px; }
+  .loc-callout-badges { display:flex; gap:4px; margin-top:6px; }
+
+  .loc-item.selected {
+    background:#FFEEF1;
+    box-shadow: 0 0 0 2px #FF0033 inset;
   }
   .loc-list { display:flex; flex-direction:column; gap:10px; }
   .loc-item { display:flex; padding:12px; border-radius:14px; background:#FFF7F0; cursor:pointer; transition: transform 0.08s; }
@@ -255,7 +317,40 @@
       <div class="loc-page">
         <div class="loc-heading">Locations</div>
         <div class="loc-sub">Pick up your bento or return the box at any spot below.</div>
-        <div class="loc-map" aria-hidden="true"></div>
+        <div class="loc-map" id="loc-map">
+          <svg class="loc-map-svg" viewBox="0 0 400 240" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            <rect width="400" height="240" fill="#F4F1EA"/>
+            <ellipse cx="295" cy="60" rx="55" ry="32" fill="#D7EBC9" opacity="0.85"/>
+            <text x="295" y="63" text-anchor="middle" fill="#6B8E50" font-size="8" font-weight="700" opacity="0.7">YOYOGI PARK</text>
+            <path d="M0,175 Q80,160 130,180 T280,180 T400,195" stroke="#A5C9E8" stroke-width="9" fill="none" opacity="0.75" stroke-linecap="round"/>
+            <g stroke="#D9D3C4" stroke-width="1" opacity="0.55">
+              <line x1="0" y1="50" x2="400" y2="50"/>
+              <line x1="0" y1="115" x2="400" y2="115"/>
+              <line x1="0" y1="205" x2="400" y2="205"/>
+              <line x1="105" y1="0" x2="105" y2="240"/>
+              <line x1="210" y1="0" x2="210" y2="240"/>
+              <line x1="325" y1="0" x2="325" y2="240"/>
+            </g>
+            <g stroke="#D9D3C4" stroke-width="1" opacity="0.4">
+              <line x1="50" y1="0" x2="220" y2="240"/>
+              <line x1="220" y1="0" x2="380" y2="240"/>
+            </g>
+            <g font-size="9" font-weight="700" fill="#B0A48E" letter-spacing="1.5">
+              <text x="20" y="40">IKEBUKURO</text>
+              <text x="170" y="100">SHINJUKU</text>
+              <text x="50" y="225">SHIBUYA</text>
+              <text x="285" y="140">CHIYODA</text>
+              <text x="225" y="225">MINATO</text>
+            </g>
+          </svg>
+          <div class="loc-map-label">Tokyo · 5 stores</div>
+          <div id="loc-pins"></div>
+          <div class="loc-callout" id="loc-callout" hidden>
+            <div class="loc-callout-name"></div>
+            <div class="loc-callout-addr"></div>
+            <div class="loc-callout-badges"></div>
+          </div>
+        </div>
         <div class="loc-list" id="loc-list"></div>
       </div>
     </div>
@@ -316,11 +411,11 @@
   const PAGE_TITLES = { home: "BentoPay", menu: "Menu", locations: "Locations", cart: "Cart" };
 
   const LOCATIONS = [
-    { name: "Shibuya Hub",        addr: "2-21-1 Shibuya, Shibuya City",   hours: "7:00 – 22:00", dist: "0.4 km", pickup: true,  return: true  },
-    { name: "Shinjuku South",     addr: "5-24-55 Sendagaya, Shibuya City", hours: "6:30 – 23:00", dist: "1.2 km", pickup: true,  return: false },
-    { name: "Tokyo Station Yaesu", addr: "1-9-1 Marunouchi, Chiyoda City", hours: "7:00 – 21:00", dist: "3.8 km", pickup: true,  return: true  },
-    { name: "Roppongi Hills",     addr: "6-10-1 Roppongi, Minato City",    hours: "8:00 – 22:00", dist: "2.1 km", pickup: true,  return: true  },
-    { name: "Ikebukuro West",     addr: "1-1-25 Nishi-Ikebukuro, Toshima", hours: "9:00 – 20:00", dist: "5.6 km", pickup: false, return: true  },
+    { id: "shibuya",   name: "Shibuya Hub",         addr: "2-21-1 Shibuya, Shibuya City",     hours: "7:00 – 22:00", dist: "0.4 km", pickup: true,  return: true,  x: "22%", y: "88%" },
+    { id: "shinjuku",  name: "Shinjuku South",      addr: "5-24-55 Sendagaya, Shibuya City",   hours: "6:30 – 23:00", dist: "1.2 km", pickup: true,  return: false, x: "42%", y: "46%" },
+    { id: "tokyo-stn", name: "Tokyo Station Yaesu", addr: "1-9-1 Marunouchi, Chiyoda City",    hours: "7:00 – 21:00", dist: "3.8 km", pickup: true,  return: true,  x: "78%", y: "62%" },
+    { id: "roppongi",  name: "Roppongi Hills",      addr: "6-10-1 Roppongi, Minato City",      hours: "8:00 – 22:00", dist: "2.1 km", pickup: true,  return: true,  x: "60%", y: "84%" },
+    { id: "ikebukuro", name: "Ikebukuro West",      addr: "1-1-25 Nishi-Ikebukuro, Toshima",   hours: "9:00 – 20:00", dist: "5.6 km", pickup: false, return: true,  x: "18%", y: "22%" },
   ];
 
   let cart = [];
@@ -356,10 +451,24 @@
     `).join("");
   }
 
+  let selectedLocId = null;
+
+  function renderPins() {
+    const el = document.getElementById("loc-pins");
+    el.innerHTML = LOCATIONS.map(loc => `
+      <button class="loc-pin-btn" data-loc-id="${loc.id}" style="left:${loc.x}; top:${loc.y};" aria-label="${loc.name}" type="button">
+        <svg viewBox="0 0 24 32" aria-hidden="true">
+          <path d="M12 1 C5.5 1 1 5.5 1 12 C1 22 12 31 12 31 C12 31 23 22 23 12 C23 5.5 18.5 1 12 1 Z" fill="#FF0033" stroke="#FFF" stroke-width="1.5"/>
+          <circle cx="12" cy="11" r="3.5" fill="#FFF"/>
+        </svg>
+      </button>
+    `).join("");
+  }
+
   function renderLocations() {
     const el = document.getElementById("loc-list");
     el.innerHTML = LOCATIONS.map(loc => `
-      <div class="loc-item" data-loc="${loc.name}">
+      <div class="loc-item" data-loc-id="${loc.id}">
         <span class="loc-pin">📍</span>
         <div class="loc-info">
           <span class="loc-name">${loc.name}</span>
@@ -373,6 +482,40 @@
         <span class="loc-dist">${loc.dist}</span>
       </div>
     `).join("");
+  }
+
+  function selectLocation(id, opts = {}) {
+    const loc = LOCATIONS.find(l => l.id === id);
+    if (!loc) return;
+    selectedLocId = id;
+
+    document.querySelectorAll(".loc-pin-btn").forEach(p => {
+      p.classList.toggle("selected", p.dataset.locId === id);
+    });
+    document.querySelectorAll(".loc-item").forEach(li => {
+      const match = li.dataset.locId === id;
+      li.classList.toggle("selected", match);
+      if (match && opts.scrollList) li.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
+    const callout = document.getElementById("loc-callout");
+    callout.style.left = loc.x;
+    callout.style.top = loc.y;
+    callout.classList.toggle("below", parseFloat(loc.y) < 35);
+    callout.querySelector(".loc-callout-name").textContent = loc.name;
+    callout.querySelector(".loc-callout-addr").textContent = loc.addr;
+    callout.querySelector(".loc-callout-badges").innerHTML = `
+      ${loc.pickup ? '<span class="loc-badge pickup">Pickup</span>' : ''}
+      ${loc.return ? '<span class="loc-badge return">Return</span>' : ''}
+    `;
+    callout.hidden = false;
+  }
+
+  function deselectLocation() {
+    selectedLocId = null;
+    document.querySelectorAll(".loc-pin-btn.selected").forEach(p => p.classList.remove("selected"));
+    document.querySelectorAll(".loc-item.selected").forEach(li => li.classList.remove("selected"));
+    document.getElementById("loc-callout").hidden = true;
   }
 
   function renderCart() {
@@ -457,9 +600,20 @@
       return;
     }
 
-    const loc = e.target.closest("[data-loc]");
-    if (loc) {
-      showToast(`${loc.dataset.loc} selected`);
+    const pin = e.target.closest(".loc-pin-btn");
+    if (pin) {
+      selectLocation(pin.dataset.locId, { scrollList: true });
+      return;
+    }
+
+    const locItem = e.target.closest(".loc-item");
+    if (locItem) {
+      selectLocation(locItem.dataset.locId);
+      return;
+    }
+
+    if (e.target.closest("#loc-map")) {
+      deselectLocation();
       return;
     }
 
@@ -473,6 +627,7 @@
   renderFeatured();
   renderMenu();
   renderLocations();
+  renderPins();
   renderCart();
 </script>
 
