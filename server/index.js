@@ -4,6 +4,7 @@ const cors = require("cors");
 const PAYPAY = require("@paypayopa/paypayopa-sdk-node");
 const crypto = require("crypto");
 const path = require("path");
+const QRCode = require("qrcode");
 
 const MENU = [
   { id: "salmon",   name: "Salmon Teriyaki", price: 980  },
@@ -35,6 +36,19 @@ app.get("/health", (_req, res) => {
 
 app.get("/kiosk", (_req, res) => {
   res.sendFile(path.resolve(__dirname, "..", "docs", "kiosk.html"));
+});
+
+app.get("/qr", async (req, res) => {
+  const text = req.query.text;
+  if (!text) return res.status(400).send("text query param required");
+  try {
+    const png = await QRCode.toBuffer(text, { width: 400, margin: 1, color: { dark: "#1A1A1A", light: "#FFFFFF" } });
+    res.set("Content-Type", "image/png");
+    res.set("Cache-Control", "public, max-age=3600");
+    res.send(png);
+  } catch (err) {
+    res.status(500).send("QR error: " + err.message);
+  }
 });
 
 // Scanning a kiosk QR lands here. We mint a PayPay sandbox payment for the
