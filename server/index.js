@@ -3,6 +3,16 @@ const express = require("express");
 const cors = require("cors");
 const PAYPAY = require("@paypayopa/paypayopa-sdk-node");
 const crypto = require("crypto");
+const path = require("path");
+
+const MENU = [
+  { id: "salmon",   name: "Salmon Teriyaki", price: 980  },
+  { id: "karaage",  name: "Chicken Karaage", price: 880  },
+  { id: "tonkatsu", name: "Tonkatsu",        price: 1080 },
+  { id: "sukiyaki", name: "Beef Sukiyaki",   price: 1280 },
+  { id: "unagi",    name: "Unagi",           price: 1480 },
+  { id: "tempura",  name: "Veggie Tempura",  price: 880  },
+];
 
 PAYPAY.Configure({
   clientId: process.env.PAYPAY_API_KEY,
@@ -21,6 +31,46 @@ app.get("/health", (_req, res) => {
     sandbox: process.env.PAYPAY_PRODUCTION_MODE !== "true",
     merchantId: process.env.PAYPAY_MERCHANT_ID ? "set" : "missing",
   });
+});
+
+app.get("/kiosk", (_req, res) => {
+  res.sendFile(path.resolve(__dirname, "..", "docs", "kiosk.html"));
+});
+
+// Scanning a kiosk QR lands here. We mint a PayPay sandbox payment for the
+// single item, then redirect the phone to the PayPay payment URL so the
+// sandbox PayPay app opens for approval.
+app.get("/buy", async (req, res) => {
+  const item = MENU.find(i => i.id === req.query.item);
+  if (!item) return res.status(404).send("Unknown item: " + req.query.item);
+
+  const merchantPaymentId = `bentopay-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`;
+  const payload = {
+    merchantPaymentId,
+    amount: { amount: item.price, currency: "JPY" },
+    codeType: "ORDER_QR",
+    orderDescription: `BentoPay — ${item.name}`,
+    orderItems: [{
+      name: item.name,
+      category: "bento",
+      quantity: 1,
+      productId: item.id,
+      unitPrice: { amount: item.price, currency: "JPY" },
+    }],
+    isAuthorization: false,
+    redirectUrl: process.env.REDIRECT_URL,
+    redirectType: "WEB_LINK",
+  };
+
+  try {
+    const result = await PAYPAY.QRCodeCreate(payload);
+    if (result.STATUS !== 201) {
+      return res.status(502).send(`PayPay error: ${JSON.stringify(result.BODY)}`);
+    }
+    res.redirect(302, result.BODY.data.url);
+  } catch (err) {
+    res.status(500).send(`Server error: ${err.message}`);
+  }
 });
 
 app.post("/api/payment/create", async (req, res) => {
