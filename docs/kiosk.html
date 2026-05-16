@@ -186,7 +186,7 @@
 <div class="grid" id="grid"></div>
 
 <footer>
-  Each QR encodes <code id="example-url">/buy?item=&lt;id&gt;</code> on this host. Scanning opens that URL, the backend mints a PayPay sandbox payment, and your phone is redirected to PayPay to approve.
+  Each QR encodes a fresh PayPay sandbox payment URL minted by the backend. Scan with the PayPay sandbox app's scanner to approve. QRs expire ~5 min after the page loads — refresh to mint fresh ones.
 </footer>
 
 <script>
@@ -201,13 +201,11 @@
 
   const origin = window.location.origin;
   document.getElementById("host-badge").textContent = window.location.host || "localhost";
-  document.getElementById("example-url").textContent = `${origin}/buy?item=<id>`;
 
   const grid = document.getElementById("grid");
 
   ITEMS.forEach((item) => {
-    const buyUrl = `${origin}/buy?item=${item.id}`;
-    const qrSrc = `${origin}/qr?text=${encodeURIComponent(buyUrl)}`;
+    const qrSrc = `${origin}/scan/${item.id}?t=${Date.now()}`;
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
@@ -215,8 +213,8 @@
       <div class="card-name">${item.name}</div>
       <div class="card-desc">${item.desc}</div>
       <div class="card-price">¥${item.price.toLocaleString("ja-JP")}</div>
-      <div class="qr-wrap"><img src="${qrSrc}" alt="QR for ${item.name}" width="200" height="200"></div>
-      <div class="qr-caption"><span class="arrow">▲</span> Scan to order</div>
+      <div class="qr-wrap"><img src="${qrSrc}" alt="PayPay QR for ${item.name}" width="200" height="200"></div>
+      <div class="qr-caption"><span class="arrow">▲</span> Scan with PayPay</div>
     `;
     grid.appendChild(card);
   });

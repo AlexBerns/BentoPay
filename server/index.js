@@ -51,6 +51,50 @@ app.get("/qr", async (req, res) => {
   }
 });
 
+// Per-item PayPay payment QR. Mints a fresh payment for the given bento and
+// returns a QR image encoding the PayPay sandbox payment URL — so scanning
+// with the PayPay sandbox app's built-in scanner opens the approval screen.
+// QRs expire ~5 min after minting; refresh the kiosk to regenerate.
+app.get("/scan/:id", async (req, res) => {
+  const item = MENU.find(i => i.id === req.params.id);
+  if (!item) return res.status(404).send("Unknown item: " + req.params.id);
+
+  const merchantPaymentId = `bentopay-${Date.now()}-${crypto.randomBytes(4).toString("hex")}`;
+  const payload = {
+    merchantPaymentId,
+    amount: { amount: item.price, currency: "JPY" },
+    codeType: "ORDER_QR",
+    orderDescription: `BentoPay — ${item.name}`,
+    orderItems: [{
+      name: item.name,
+      category: "bento",
+      quantity: 1,
+      productId: item.id,
+      unitPrice: { amount: item.price, currency: "JPY" },
+    }],
+    isAuthorization: false,
+    redirectUrl: process.env.REDIRECT_URL,
+    redirectType: "WEB_LINK",
+  };
+
+  try {
+    const result = await PAYPAY.QRCodeCreate(payload);
+    if (result.STATUS !== 201) {
+      console.error("PayPay create failed", result.BODY);
+      return res.status(502).send("PayPay error: " + JSON.stringify(result.BODY));
+    }
+    const paypayUrl = result.BODY.data.url;
+    const png = await QRCode.toBuffer(paypayUrl, { width: 400, margin: 1, color: { dark: "#1A1A1A", light: "#FFFFFF" } });
+    res.set("Content-Type", "image/png");
+    res.set("Cache-Control", "no-store");
+    res.set("X-Merchant-Payment-Id", merchantPaymentId);
+    res.send(png);
+  } catch (err) {
+    console.error("scan endpoint error", err);
+    res.status(500).send("Server error: " + err.message);
+  }
+});
+
 // Scanning a kiosk QR lands here. We mint a PayPay sandbox payment for the
 // single item, then redirect the phone to the PayPay payment URL so the
 // sandbox PayPay app opens for approval.
