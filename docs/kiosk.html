@@ -94,110 +94,11 @@
     transform: translateY(-3px);
     box-shadow: 0 18px 40px rgba(255, 0, 51, 0.12), 0 4px 10px rgba(0,0,0,0.05);
   }
-  /* ---------- 3D Bento Box ---------- */
-  .bento-scene {
-    width: 100%;
-    height: 220px;
-    perspective: 900px;
-    perspective-origin: 50% 35%;
-    margin: 4px 0 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    cursor: grab;
-  }
-  .bento-scene:active { cursor: grabbing; }
-  .bento-shadow {
-    position: absolute;
-    bottom: 18px;
-    left: 50%;
-    width: 170px;
-    height: 24px;
-    transform: translateX(-50%);
-    background: radial-gradient(ellipse at center, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0) 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .bento-box {
-    position: relative;
-    width: 160px;
-    height: 36px;
-    transform-style: preserve-3d;
-    transform: rotateX(56deg) rotateY(-22deg);
-    transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-    will-change: transform;
-  }
-  .bento-face { position: absolute; left: 50%; top: 50%; }
-  /* Top — the food-facing surface */
-  .bento-top {
-    width: 160px; height: 110px;
-    margin-left: -80px; margin-top: -55px;
-    transform: rotateX(-90deg) translateZ(18px);
-    background:
-      radial-gradient(ellipse at 30% 40%, rgba(255,255,255,0.5) 0%, transparent 50%),
-      linear-gradient(135deg, #F8EBC9 0%, #E8D4A8 100%);
-    border-radius: 4px;
-    border: 2px solid #2A1A0E;
-    box-sizing: border-box;
-    overflow: hidden;
-  }
-  .bento-bottom {
-    width: 160px; height: 110px;
-    margin-left: -80px; margin-top: -55px;
-    transform: rotateX(90deg) translateZ(18px);
-    background: #1A0E08;
-    border-radius: 4px;
-  }
-  .bento-front {
-    width: 160px; height: 36px;
-    margin-left: -80px; margin-top: -18px;
-    transform: translateZ(55px);
-    background: linear-gradient(180deg, #5B3220 0%, #2E1A0F 60%, #1A0E08 100%);
-    border-radius: 0 0 4px 4px;
-  }
-  .bento-back {
-    width: 160px; height: 36px;
-    margin-left: -80px; margin-top: -18px;
-    transform: rotateY(180deg) translateZ(55px);
-    background: linear-gradient(180deg, #4A2A1A 0%, #2A1810 100%);
-  }
-  .bento-left {
-    width: 110px; height: 36px;
-    margin-left: -55px; margin-top: -18px;
-    transform: rotateY(-90deg) translateZ(80px);
-    background: linear-gradient(180deg, #4A2A1A 0%, #2A1810 100%);
-  }
-  .bento-right {
-    width: 110px; height: 36px;
-    margin-left: -55px; margin-top: -18px;
-    transform: rotateY(90deg) translateZ(80px);
-    background: linear-gradient(180deg, #5B3220 0%, #2A1810 100%);
-  }
-  /* Compartments on the top face */
-  .bento-comp {
-    position: absolute;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 3px;
-    box-shadow: inset 0 -2px 4px rgba(0,0,0,0.10), inset 0 2px 3px rgba(255,255,255,0.4);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.18);
-  }
-  .comp-main   { left: 4px;   top: 4px;   width: 78px;  height: 102px; font-size: 44px; }
-  .comp-rice   { left: 86px;  top: 4px;   width: 70px;  height: 46px;  font-size: 22px; background: #FFFFFF; }
-  .comp-veg    { left: 86px;  top: 54px;  width: 33px;  height: 52px;  font-size: 18px; background: #C8E0A8; }
-  .comp-garnish{ left: 123px; top: 54px;  width: 33px;  height: 52px;  font-size: 16px; background: #FFD9B5; }
-  /* Subtle "grain" on rice */
-  .comp-rice::after {
-    content: "";
-    position: absolute;
-    inset: 4px;
-    border-radius: 2px;
-    background:
-      radial-gradient(circle at 30% 30%, rgba(0,0,0,0.04) 0 1px, transparent 2px),
-      radial-gradient(circle at 60% 60%, rgba(0,0,0,0.04) 0 1px, transparent 2px),
-      radial-gradient(circle at 80% 30%, rgba(0,0,0,0.04) 0 1px, transparent 2px);
+  .card-emoji {
+    font-size: 140px;
+    line-height: 1;
+    margin: 8px 0 14px;
+    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.08));
   }
   .card-name {
     font-size: 22px;
@@ -290,13 +191,14 @@
 
 <script>
   const ITEMS = [
-    { id: "salmon",   main: "🐟", side1: "🍚", side2: "🥦", side3: "🍋", mainBg: "#FFD8C8", name: "Salmon Teriyaki", desc: "Glazed Atlantic salmon over rice",   price: 980  },
-    { id: "karaage",  main: "🍗", side1: "🍚", side2: "🥬", side3: "🍅", mainBg: "#F5DDB5", name: "Chicken Karaage", desc: "Japanese fried chicken, tartare",    price: 880  },
-    { id: "tonkatsu", main: "🍖", side1: "🍚", side2: "🥬", side3: "🍋", mainBg: "#EBD2B0", name: "Tonkatsu",        desc: "Panko-crusted pork cutlet",          price: 1080 },
-    { id: "sukiyaki", main: "🥩", side1: "🍚", side2: "🍄", side3: "🧅", mainBg: "#E5BFA8", name: "Beef Sukiyaki",   desc: "Thin-sliced wagyu in sweet soy",     price: 1280 },
-    { id: "unagi",    main: "🍣", side1: "🍚", side2: "🥒", side3: "🍋", mainBg: "#D8C194", name: "Unagi",           desc: "Grilled eel, kabayaki sauce",        price: 1480 },
-    { id: "tempura",  main: "🍤", side1: "🍚", side2: "🥦", side3: "🍋", mainBg: "#FFE8C0", name: "Veggie Tempura",  desc: "Seasonal vegetables, lightly fried", price: 880  },
+    { id: "salmon",   emoji: "🐟", name: "Salmon Teriyaki", desc: "Glazed Atlantic salmon over rice",   price: 980  },
+    { id: "karaage",  emoji: "🍗", name: "Chicken Karaage", desc: "Japanese fried chicken, tartare",    price: 880  },
+    { id: "tonkatsu", emoji: "🍖", name: "Tonkatsu",        desc: "Panko-crusted pork cutlet",          price: 1080 },
+    { id: "sukiyaki", emoji: "🥩", name: "Beef Sukiyaki",   desc: "Thin-sliced wagyu in sweet soy",     price: 1280 },
+    { id: "unagi",    emoji: "🍣", name: "Unagi",           desc: "Grilled eel, kabayaki sauce",        price: 1480 },
+    { id: "tempura",  emoji: "🥬", name: "Veggie Tempura",  desc: "Seasonal vegetables, lightly fried", price: 880  },
   ];
+
 
   const origin = window.location.origin;
   document.getElementById("host-badge").textContent = window.location.host || "localhost";
@@ -308,22 +210,7 @@
     const card = document.createElement("div");
     card.className = "card";
     card.innerHTML = `
-      <div class="bento-scene">
-        <div class="bento-shadow"></div>
-        <div class="bento-box">
-          <div class="bento-face bento-top">
-            <div class="bento-comp comp-main" style="background:${item.mainBg}">${item.main}</div>
-            <div class="bento-comp comp-rice">${item.side1}</div>
-            <div class="bento-comp comp-veg">${item.side2}</div>
-            <div class="bento-comp comp-garnish">${item.side3}</div>
-          </div>
-          <div class="bento-face bento-bottom"></div>
-          <div class="bento-face bento-front"></div>
-          <div class="bento-face bento-back"></div>
-          <div class="bento-face bento-left"></div>
-          <div class="bento-face bento-right"></div>
-        </div>
-      </div>
+      <div class="card-emoji">${item.emoji}</div>
       <div class="card-name">${item.name}</div>
       <div class="card-desc">${item.desc}</div>
       <div class="card-price">¥${item.price.toLocaleString("ja-JP")}</div>
@@ -331,23 +218,6 @@
       <div class="qr-caption"><span class="arrow">▲</span> Scan with PayPay</div>
     `;
     grid.appendChild(card);
-
-    // Mouse-tracked rotation
-    const scene = card.querySelector(".bento-scene");
-    const box = card.querySelector(".bento-box");
-    scene.addEventListener("mousemove", (e) => {
-      const rect = scene.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width;   // 0..1
-      const y = (e.clientY - rect.top) / rect.height;   // 0..1
-      const rotY = (x - 0.5) * 140;                     // -70..+70 (spin left/right)
-      const rotX = 10 + (1 - y) * 80;                   // 10..90 (tilt: flat to overhead)
-      box.style.transition = "transform 0.08s linear";
-      box.style.transform = `rotateX(${rotX}deg) rotateY(${rotY}deg)`;
-    });
-    scene.addEventListener("mouseleave", () => {
-      box.style.transition = "transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1)";
-      box.style.transform = "";
-    });
   });
 </script>
 
