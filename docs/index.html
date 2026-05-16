@@ -122,6 +122,49 @@
   .menu-price { font-size:13px; font-weight:700; color:#FF0033; }
   .menu-add { margin-top:4px; font-size:20px; color:#FF0033; font-weight:700; }
 
+  /* ---------- Locations ---------- */
+  .loc-page { padding:16px; background:#FFF; }
+  .loc-heading { font-size:22px; font-weight:800; margin-bottom:6px; color:#1A1A1A; }
+  .loc-sub { font-size:12px; color:#777; margin-bottom:14px; }
+  .loc-map {
+    height: 120px;
+    border-radius: 14px;
+    background:
+      radial-gradient(circle at 22% 38%, #FF0033 0 6px, transparent 7px),
+      radial-gradient(circle at 58% 28%, #FF0033 0 6px, transparent 7px),
+      radial-gradient(circle at 78% 62%, #FF0033 0 6px, transparent 7px),
+      radial-gradient(circle at 38% 72%, #FF0033 0 6px, transparent 7px),
+      radial-gradient(circle at 68% 80%, #FF0033 0 6px, transparent 7px),
+      linear-gradient(135deg, #EAF3FF 0%, #F6ECFF 100%);
+    position: relative;
+    margin-bottom: 14px;
+    border: 1px solid #E5E7EB;
+  }
+  .loc-map::after {
+    content: "Tokyo · 5 stores";
+    position: absolute;
+    bottom: 8px; right: 10px;
+    background: rgba(255,255,255,0.85);
+    color:#555;
+    font-size:10px;
+    font-weight:600;
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+  .loc-list { display:flex; flex-direction:column; gap:10px; }
+  .loc-item { display:flex; padding:12px; border-radius:14px; background:#FFF7F0; cursor:pointer; transition: transform 0.08s; }
+  .loc-item:active { transform: scale(0.99); }
+  .loc-pin { font-size:24px; margin-right:12px; line-height:1.2; }
+  .loc-info { flex:1; display:flex; flex-direction:column; }
+  .loc-name { font-size:14px; font-weight:700; color:#1A1A1A; }
+  .loc-addr { margin-top:2px; font-size:11px; color:#777; }
+  .loc-hours { margin-top:4px; font-size:11px; color:#555; }
+  .loc-badges { display:flex; gap:6px; margin-top:8px; }
+  .loc-badge { font-size:10px; font-weight:700; padding:3px 8px; border-radius:999px; letter-spacing:0.3px; }
+  .loc-badge.pickup { background:#E8F8EE; color:#15803D; }
+  .loc-badge.return { background:#E8F0FF; color:#1D4ED8; }
+  .loc-dist { font-size:11px; color:#999; align-self:flex-start; margin-left:8px; white-space:nowrap; }
+
   /* ---------- Cart ---------- */
   .cart-page { padding:16px; background:#FFF; }
   .cart-heading { font-size:22px; font-weight:800; margin-bottom:16px; color:#1A1A1A; }
@@ -207,6 +250,16 @@
       </div>
     </div>
 
+    <!-- Locations -->
+    <div class="page" data-page="locations">
+      <div class="loc-page">
+        <div class="loc-heading">Locations</div>
+        <div class="loc-sub">Pick up your bento or return the box at any spot below.</div>
+        <div class="loc-map" aria-hidden="true"></div>
+        <div class="loc-list" id="loc-list"></div>
+      </div>
+    </div>
+
     <!-- Cart -->
     <div class="page" data-page="cart">
       <div class="cart-page">
@@ -230,6 +283,7 @@
   <div class="tabbar">
     <div class="tab active" data-tab="home"><span class="tab-icon">🏠</span>Home</div>
     <div class="tab" data-tab="menu"><span class="tab-icon">📋</span>Menu</div>
+    <div class="tab" data-tab="locations"><span class="tab-icon">📍</span>Locations</div>
     <div class="tab" data-tab="cart">
       <span class="tab-icon">🛒</span>Cart
       <span class="badge-count hidden" id="cart-badge">0</span>
@@ -259,7 +313,15 @@
   ];
   const FEATURED_IDS = ["salmon", "karaage", "unagi"];
 
-  const PAGE_TITLES = { home: "BentoPay", menu: "Menu", cart: "Cart" };
+  const PAGE_TITLES = { home: "BentoPay", menu: "Menu", locations: "Locations", cart: "Cart" };
+
+  const LOCATIONS = [
+    { name: "Shibuya Hub",        addr: "2-21-1 Shibuya, Shibuya City",   hours: "7:00 – 22:00", dist: "0.4 km", pickup: true,  return: true  },
+    { name: "Shinjuku South",     addr: "5-24-55 Sendagaya, Shibuya City", hours: "6:30 – 23:00", dist: "1.2 km", pickup: true,  return: false },
+    { name: "Tokyo Station Yaesu", addr: "1-9-1 Marunouchi, Chiyoda City", hours: "7:00 – 21:00", dist: "3.8 km", pickup: true,  return: true  },
+    { name: "Roppongi Hills",     addr: "6-10-1 Roppongi, Minato City",    hours: "8:00 – 22:00", dist: "2.1 km", pickup: true,  return: true  },
+    { name: "Ikebukuro West",     addr: "1-1-25 Nishi-Ikebukuro, Toshima", hours: "9:00 – 20:00", dist: "5.6 km", pickup: false, return: true  },
+  ];
 
   let cart = [];
 
@@ -290,6 +352,25 @@
           <span class="menu-price">¥${item.price}</span>
           <span class="menu-add">+</span>
         </div>
+      </div>
+    `).join("");
+  }
+
+  function renderLocations() {
+    const el = document.getElementById("loc-list");
+    el.innerHTML = LOCATIONS.map(loc => `
+      <div class="loc-item" data-loc="${loc.name}">
+        <span class="loc-pin">📍</span>
+        <div class="loc-info">
+          <span class="loc-name">${loc.name}</span>
+          <span class="loc-addr">${loc.addr}</span>
+          <span class="loc-hours">⏰ ${loc.hours}</span>
+          <div class="loc-badges">
+            ${loc.pickup ? '<span class="loc-badge pickup">Pickup</span>' : ''}
+            ${loc.return ? '<span class="loc-badge return">Return</span>' : ''}
+          </div>
+        </div>
+        <span class="loc-dist">${loc.dist}</span>
       </div>
     `).join("");
   }
@@ -376,6 +457,12 @@
       return;
     }
 
+    const loc = e.target.closest("[data-loc]");
+    if (loc) {
+      showToast(`${loc.dataset.loc} selected`);
+      return;
+    }
+
     if (e.target.id === "modal-close") {
       document.getElementById("modal").classList.remove("show");
       showPage("home");
@@ -385,6 +472,7 @@
 
   renderFeatured();
   renderMenu();
+  renderLocations();
   renderCart();
 </script>
 
