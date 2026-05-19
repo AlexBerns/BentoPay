@@ -7,6 +7,9 @@
 !.env.example
 node_modules/
 
-# Local clientId for the PayPay Mini App SDK — paste into pages/index/config.js
-pages/**/config.js
-!pages/**/config.example.js
+# Vite build output
+dist/
+
+# Local clientId for the PayPay Mini App SDK — paste into src/config.js
+src/config.js
+!src/config.example.js
