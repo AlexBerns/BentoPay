@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@paypay/mini-app-js-sdk": "^2.65.0"
+  }
+}
