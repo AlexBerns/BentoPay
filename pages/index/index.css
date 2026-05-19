@@ -6,6 +6,18 @@
   background: linear-gradient(180deg, #FFF6E0 0%, #FFFFFF 60%);
 }
 
+.smoke {
+  font-size: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  text-align: center;
+}
+.smoke-pending { background: #EEE; color: #555; }
+.smoke-ok      { background: #E6F7EC; color: #137E2D; }
+.smoke-warn    { background: #FFF4D6; color: #8A5A00; }
+.smoke-error   { background: #FDE2E2; color: #B00020; }
+
 .hero {
   display: flex;
   flex-direction: column;

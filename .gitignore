@@ -6,3 +6,7 @@
 .env.*
 !.env.example
 node_modules/
+
+# Local clientId for the PayPay Mini App SDK — paste into pages/index/config.js
+pages/**/config.js
+!pages/**/config.example.js
